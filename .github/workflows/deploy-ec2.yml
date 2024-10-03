@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # Allows manual triggering
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -12,6 +12,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Add EC2 host key to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to EC2
         env:
@@ -21,8 +26,11 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > key.pem
           chmod 400 key.pem
-          ssh -i key.pem $EC2_USER@$EC2_HOST "docker pull divyanshia/automate:latest"
-          ssh -i key.pem $EC2_USER@$EC2_HOST "docker stop my-stopwatch-app || true"
-          ssh -i key.pem $EC2_USER@$EC2_HOST "docker rm my-stopwatch-app || true"
-          ssh -i key.pem $EC2_USER@$EC2_HOST "docker run -d -p 80:8080 --name my-stopwatch-app divyanshia/automate:latest"
+          ssh -i key.pem $EC2_USER@$EC2_HOST "echo 'Successfully connected to EC2'"
+          ssh -i key.pem $EC2_USER@$EC2_HOST "docker --version && echo 'Docker is installed'"
+          ssh -i key.pem $EC2_USER@$EC2_HOST "docker pull divyanshia/automate:latest && echo 'Image pulled successfully'"
+          ssh -i key.pem $EC2_USER@$EC2_HOST "docker stop my-stopwatch-app || true && echo 'Stopped old container (if existed)'"
+          ssh -i key.pem $EC2_USER@$EC2_HOST "docker rm my-stopwatch-app || true && echo 'Removed old container (if existed)'"
+          ssh -i key.pem $EC2_USER@$EC2_HOST "docker run -d -p 80:8080 --name my-stopwatch-app divyanshia/automate:latest && echo 'New container started'"
+          ssh -i key.pem $EC2_USER@$EC2_HOST "docker logs my-stopwatch-app"
           rm key.pem
