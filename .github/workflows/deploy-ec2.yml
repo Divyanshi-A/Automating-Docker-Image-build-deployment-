@@ -18,7 +18,7 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           EC2_USER: ec2-user
           EC2_HOST: ${{ secrets.EC2_HOST }}
-        run: |
+        run: 
           echo "$SSH_PRIVATE_KEY" > key.pem
           chmod 400 key.pem
           ssh -i key.pem $EC2_USER@$EC2_HOST "docker pull divyanshia/automate:latest"
