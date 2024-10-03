@@ -144,6 +144,6 @@ app.get('/time', (req, res) => {
   res.send(`Elapsed time: ${elapsedTime / 1000} seconds.`);
 });
 
-app.listen(port, () => {
-  console.log(`Stopwatch app listening at http://localhost:${port}`);
-});
+/*app.listen(port, () => {
+  //console.log(`Stopwatch app listening at http://localhost:${port}`);
+});*/
